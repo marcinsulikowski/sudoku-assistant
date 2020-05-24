@@ -21,6 +21,14 @@ class SudokuModel {
     return this.cells[row][column];
   }
 
+  getSelectedCell() {
+    if (this.selected) {
+      return this.cells[this.selected.row][this.selected.column];
+    } else {
+      return null;
+    }
+  }
+
   clone() {
     let cloned = Object.assign(
       Object.create(Object.getPrototypeOf(this)),
@@ -34,7 +42,7 @@ class SudokuModel {
   deselect() {
     console.log(`deselect()`);
     if (this.selected) {
-      this.cells[this.selected.row][this.selected.column].selected = false;
+      this.getSelectedCell().selected = false;
       this.selected = null;
     }
   }
@@ -42,8 +50,24 @@ class SudokuModel {
   select(row, column) {
     console.log(`select(row=${row}, column=${column})`);
     this.deselect();
-    this.cells[row][column].selected = true;
     this.selected = { row: row, column: column };
+    this.getSelectedCell().selected = true;
+  }
+
+  moveSelection(rowDiff, columnDiff) {
+    console.log(`moveSelection(row=${rowDiff}, column=${columnDiff})`);
+    if (this.selected) {
+      this.getSelectedCell().selected = false;
+      this.selected.row = Math.max(
+        0,
+        Math.min(8, this.selected.row + rowDiff)
+      );
+      this.selected.column = Math.max(
+        0,
+        Math.min(8, this.selected.column + columnDiff)
+      );
+      this.getSelectedCell().selected = true;
+    }
   }
 
   setValue(row, column, value) {

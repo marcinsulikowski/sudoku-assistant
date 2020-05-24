@@ -86,6 +86,14 @@ class Game extends React.Component {
         let number = event.key.charCodeAt(0) - "0".charCodeAt(0);
         state.sudoku.setValueInSelectedCells(number);
       }
+    } else if (event.key === "ArrowLeft") {
+      state.sudoku.moveSelection(0, -1);
+    } else if (event.key === "ArrowRight") {
+      state.sudoku.moveSelection(0, +1);
+    } else if (event.key === "ArrowUp") {
+      state.sudoku.moveSelection(-1, 0);
+    } else if (event.key === "ArrowDown") {
+      state.sudoku.moveSelection(+1, 0);
     }
     this.setState(state);
   }
