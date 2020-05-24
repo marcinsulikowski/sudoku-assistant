@@ -61,6 +61,7 @@ class Game extends React.Component {
     super(props);
     this.state = {
       mode: "normal",
+      selectedColor: 0,
       sudoku: new SudokuModel(),
     };
   }
@@ -102,6 +103,34 @@ class Game extends React.Component {
       state.sudoku.moveSelection(-1, 0);
     } else if (event.key === "ArrowDown") {
       state.sudoku.moveSelection(+1, 0);
+    } else if (event.key === " ") {
+      if (state.mode === "normal") {
+        state.mode = "center";
+      } else if (state.mode === "center") {
+        state.mode = "corner";
+      } else if (state.mode === "corner") {
+        state.mode = "color";
+      } else {
+        state.mode = "normal";
+      }
+    } else if (event.key === "a") {
+      state.mode = "normal";
+    } else if (event.key === "z") {
+      state.mode = "center";
+    } else if (event.key === "x") {
+      state.mode = "corner";
+    } else if (event.key === "c") {
+      state.mode = "color";
+    }
+    this.setState(state);
+  }
+
+  handleSetMode = (mode, color) => {
+    console.log(`handleSetMode(mode=${mode}, color=${color})`);
+    let state = this.cloneState();
+    state.mode = mode;
+    if (color !== null) {
+      state.selectedColor = color;
     }
     this.setState(state);
   }
@@ -117,16 +146,33 @@ class Game extends React.Component {
   }
 
   render() {
-    let renderModeButton = (mode) => {
-      let text = mode.charAt(0).toUpperCase() + mode.slice(1)
+    let renderModeButton = (mode, shortcut) => {
+      let modeUpper = mode.charAt(0).toUpperCase() + mode.slice(1);
+      let text = `${modeUpper} (${shortcut})`
+      let btnClass = this.state.mode === mode
+        ? "btn-dark"
+        : "btn-outline-dark";
       return (
-        <button className="btn btn-outline-dark mode">{text}</button>
+        <button
+          className={`btn mode ${btnClass}`}
+          onClick={() => this.handleSetMode(mode, null)}
+        >
+          {text}
+        </button>
       );
     }
+
     let renderColorButton = (colorId) => {
+      let btnClass = (this.state.mode === "color"
+          && this.state.selectedColor === colorId)
+        ? "btn-dark"
+        : "btn-outline-dark";
       return (
-        <button className="btn btn-outline-dark color">
-          <div class={`sample color${colorId}`}></div>
+        <button
+          className={`btn color ${btnClass}`}
+          onClick={() => this.handleSetMode("color", colorId)}
+        >
+          <div className={`sample color${colorId}`}></div>
         </button>
       );
     }
@@ -139,9 +185,9 @@ class Game extends React.Component {
         />
         <div className="panel">
           <div className="mode">
-            {renderModeButton("normal")}
-            {renderModeButton("center")}
-            {renderModeButton("corner")}
+            {renderModeButton("normal", "A")}
+            {renderModeButton("center", "Z")}
+            {renderModeButton("corner", "X")}
             {renderColorButton(0)}
             {renderColorButton(1)}
             {renderColorButton(2)}
