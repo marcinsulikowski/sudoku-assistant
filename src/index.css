@@ -20,8 +20,6 @@ body {
 
 .cell {
   border: 1px solid #999;
-  background: #fff;
-
   text-align: center;
   font-weight: bold;
   width: 1.5em;

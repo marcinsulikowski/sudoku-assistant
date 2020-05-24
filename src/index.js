@@ -9,6 +9,9 @@ class Cell extends React.Component {
   render() {
     let getClassName = () => {
       let classNames = "cell";
+      if (this.props.cell.color !== null) {
+        classNames += ` color${this.props.cell.color}`;
+      }
       if (this.props.cell.selected) {
         classNames += " selected";
       }
@@ -94,6 +97,12 @@ class Game extends React.Component {
     } else if (event.key === "Delete") {
       if (state.mode === "normal") {
         state.sudoku.setValueInSelectedCells(null);
+      } else if (state.mode === "color") {
+        state.sudoku.setColorInSelectedCells(null);
+      }
+    } else if (event.key === "Enter") {
+      if (state.mode === "color") {
+        state.sudoku.setColorInSelectedCells(state.selectedColor);
       }
     } else if (event.key === "ArrowLeft") {
       state.sudoku.moveSelection(0, -1);

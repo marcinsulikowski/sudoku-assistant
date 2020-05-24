@@ -11,6 +11,7 @@ class SudokuModel {
           incorrect: false,
           fixed: false,
           value: null,
+          color: null,
           centerMarks: Array(9).fill(false),
           cornerMarks: Array(9).fill(false),
         }
@@ -122,16 +123,27 @@ class SudokuModel {
 
   setValue(row, column, value) {
     console.log(`setValue(row=${row}, column=${column}, value=${value})`);
-    let cell = this.cells[row][column];
+    let cell = this.getCell(row, column);
     if (!cell.fixed) {
       cell.value = value;
     }
     this.updateInvalid();
   }
 
+  setColor(row, column, color) {
+    console.log(`setColor(row=${row}, column=${column}, color=${color})`);
+    this.getCell(row, column).color = color;
+  }
+
   setValueInSelectedCells(value) {
     if (this.selected) {
       this.setValue(this.selected.row, this.selected.column, value);
+    }
+  }
+
+  setColorInSelectedCells(color) {
+    if (this.selected) {
+      this.setColor(this.selected.row, this.selected.column, color);
     }
   }
 
