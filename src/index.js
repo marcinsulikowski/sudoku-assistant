@@ -97,6 +97,7 @@ class Game extends React.Component {
       selectedColor: 0,
       sudoku: new SudokuModel(),
     };
+    this.saveTextArea = React.createRef();
   }
 
   // Methods which operate on the state
@@ -178,6 +179,22 @@ class Game extends React.Component {
     this.setState(state);
   }
 
+  handleLoad = (event) => {
+    let savedPuzzle = event.clipboardData.getData("Text");
+    console.log(`handleLoad(state='${savedPuzzle}')`);
+    let state = this.cloneState();
+    state.sudoku.loadPuzzle(savedPuzzle);
+    this.setState(state);
+  }
+
+  handleSave = () => {
+    this.saveTextArea.current.value = this.state.sudoku.savePuzzle();
+    this.saveTextArea.current.style.display = "block";
+    this.saveTextArea.current.select();
+    document.execCommand("copy");
+    this.saveTextArea.current.style.display = "none";
+  }
+
   // ReactJS stuff
 
   componentDidMount() {
@@ -221,7 +238,7 @@ class Game extends React.Component {
     }
 
     return (
-      <div className="game">
+      <div className="game" onPaste={this.handleLoad}>
         <Board
           sudoku={this.state.sudoku}
           handleClick={this.handleClick}
@@ -240,6 +257,15 @@ class Game extends React.Component {
             {renderColorButton(6)}
             {renderColorButton(7)}
             {renderColorButton(8)}
+          </div>
+          <div className="save">
+            <textarea ref={this.saveTextArea}></textarea>
+            <button
+              className="btn btn-outline-dark"
+              onClick={this.handleSave}
+            >
+              Copy to clipboard
+            </button>
           </div>
         </div>
       </div>

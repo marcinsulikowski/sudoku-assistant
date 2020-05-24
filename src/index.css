@@ -107,6 +107,10 @@ body {
   height: 1em;
 }
 
+.panel .save textarea {
+  display: none;
+}
+
 .color0 {
   background-color: #7ad;
 }

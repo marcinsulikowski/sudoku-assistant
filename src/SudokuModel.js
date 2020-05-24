@@ -7,6 +7,9 @@ class SudokuModel {
       this.cells[row] = Array(9);
       for (let column = 0; column < 9; column++) {
         this.cells[row][column] = {
+          row: row,
+          column: column,
+          index: row * 9 + column,
           selected: false,
           incorrect: false,
           fixed: false,
@@ -29,6 +32,25 @@ class SudokuModel {
     return cloned;
   }
 
+  savePuzzle() {
+    let values = Array(9 * 9).fill(0);
+    for (const cell of this.getAllCells()) {
+      values[cell.index] = (cell.value === null ? 0 : cell.value);
+    }
+    return values.join("");
+  }
+
+  loadPuzzle(puzzle) {
+    for (const cell of this.getAllCells()) {
+      let value = puzzle.charCodeAt(cell.index) - "0".charCodeAt(0);
+      cell.value = (value === 0 ? null : value);
+      cell.color = null;
+      cell.fixed = (cell.value !== null);
+      cell.cornerMarks.fill(false);
+      cell.centerMarks.fill(false);
+    }
+    this.updateInvalid();
+  }
 
   getCell(row, column) {
     return this.cells[row][column];
