@@ -172,13 +172,17 @@ class SudokuModel {
 
   toggleCenterInSelectedCells(value) {
     for (const cell of this.getSelectedCells()) {
-      cell.centerMarks[value] = !cell.centerMarks[value];
+      if (cell.value === null) {
+        cell.centerMarks[value] = !cell.centerMarks[value];
+      }
     }
   }
 
   toggleCornerInSelectedCells(value) {
     for (const cell of this.getSelectedCells()) {
-      cell.cornerMarks[value] = !cell.cornerMarks[value];
+      if (cell.value === null) {
+        cell.cornerMarks[value] = !cell.cornerMarks[value];
+      }
     }
   }
 
