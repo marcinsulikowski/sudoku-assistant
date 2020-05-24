@@ -2,6 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
+const SudokuModel = require('./SudokuModel').default;
+
 class Cell extends React.Component {
   render() {
     let getClassName = () => {
@@ -26,7 +28,7 @@ class Cell extends React.Component {
 class Board extends React.Component {
   renderCell(row, column) {
     return <Cell
-      cell={this.props.cells[row][column]}
+      cell={this.props.sudoku.cells[row][column]}
       onClick={() => this.props.handleClick(row, column)}
     />
   }
@@ -56,72 +58,34 @@ class Game extends React.Component {
     super(props);
     this.state = {
       mode: "big",
-      selected: null,
-      cells: Array(9),
+      sudoku: new SudokuModel(),
     };
-
-    for (let row = 0; row < 9; row++) {
-      this.state.cells[row] = Array(9);
-      for (let column = 0; column < 9; column++) {
-        this.state.cells[row][column] = {
-          selected: false,
-          fixed: false,
-          value: null,
-          centerMarks: Array(9).fill(false),
-          cornerMarks: Array(9).fill(false),
-        }
-      }
-    }
   }
 
   // Methods which operate on the state
 
-  deselect = (state) => {
-    console.log(`deselect()`);
-    console.assert(state.selected);
-    state.cells[state.selected.row][state.selected.column].selected = false;
-    state.selected = null;
-  }
-
-  select = (state, row, column) => {
-    console.log(`select(row=${row}, column=${column})`);
-    console.assert(!state.selected);
-    state.cells[row][column].selected = true;
-    state.selected = {row: row, column: column}
-  }
-
-  setValue = (state, row, column, value) => {
-    console.log(`setValue(row=${row}, column=${column}, value=${value})`);
-    let cell = state.cells[row][column];
-    if (!cell.fixed) {
-      cell.value = value;
-    }
+  cloneState() {
+    let state = Object.assign({}, this.state);
+    state.sudoku = this.state.sudoku.clone();
+    return state;
   }
 
   // Event handlers
 
   handleClick = (row, column) => {
     console.log(`handleClick(row=${row}, column=${column})`);
-    let state = JSON.parse(JSON.stringify(this.state))
-    if (state.selected) {
-      this.deselect(state);
-    }
-    this.select(state, row, column);
+    let state = this.cloneState();
+    state.sudoku.select(row, column);
     this.setState(state);
   }
 
   handleKey = (event) => {
     console.log(`handleKey(${event.key})`);
-    let state = JSON.parse(JSON.stringify(this.state))
+    let state = this.cloneState();
     if (/^[1-9]$/.test(event.key)) {
-      if (state.selected && state.mode === "big") {
-        let value = event.key.charCodeAt(0) - "0".charCodeAt(0);
-        this.setValue(
-          state,
-          state.selected.row,
-          state.selected.column,
-          value
-        );
+      if (state.mode === "big") {
+        let number = event.key.charCodeAt(0) - "0".charCodeAt(0);
+        state.sudoku.setValueInSelectedCells(number);
       }
     }
     this.setState(state);
@@ -142,7 +106,7 @@ class Game extends React.Component {
       <div className="game">
         <div className="game-board">
           <Board
-            cells={this.state.cells}
+            sudoku={this.state.sudoku}
             handleClick={this.handleClick}
           />
         </div>
