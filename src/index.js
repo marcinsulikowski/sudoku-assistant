@@ -26,27 +26,26 @@ class Cell extends React.Component {
 }
 
 class Board extends React.Component {
-  renderCell(row, column) {
-    return <Cell
-      cell={this.props.sudoku.cells[row][column]}
-      onClick={() => this.props.handleClick(row, column)}
-    />
-  }
-
   render() {
+    let key = 0;
     let boxes = [];
     for (let boxRow = 0; boxRow < 3; ++boxRow) {
       for (let boxCol = 0; boxCol < 3; ++boxCol) {
         let cells = [];
         for (let cellRow = 0; cellRow < 3; ++cellRow) {
           for (let cellCol = 0; cellCol < 3; ++cellCol) {
-            cells.push(this.renderCell(
-              3 * boxRow + cellRow,
-              3 * boxCol + cellCol
-            ));
+            let row = 3 * boxRow + cellRow;
+            let column = 3 * boxCol + cellCol;
+            cells.push(
+              <Cell
+                key={++key}
+                cell={this.props.sudoku.getCell(row, column)}
+                onClick={() => this.props.handleClick(row, column)}
+              />
+            );
           }
         }
-        boxes.push(<div className="box">{cells}</div>);
+        boxes.push(<div className="box" key={++key}>{cells}</div>);
       }
     }
     return (<div className="board">{boxes}</div>);
