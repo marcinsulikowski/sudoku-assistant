@@ -2,13 +2,13 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
-class Square extends React.Component {
+class Cell extends React.Component {
   render() {
     let getClassName = () => {
-      if (this.props.square.selected) {
-        return "square selected";
+      if (this.props.cell.selected) {
+        return "cell selected";
       } else {
-        return "square";
+        return "cell";
       }
     }
 
@@ -17,16 +17,16 @@ class Square extends React.Component {
         className={getClassName()}
         onClick={this.props.onClick}
       >
-        {this.props.square.value}
+        {this.props.cell.value}
       </div>
     );
   }
 }
 
 class Board extends React.Component {
-  renderSquare(row, column) {
-    return <Square
-      square={this.props.squares[row][column]}
+  renderCell(row, column) {
+    return <Cell
+      cell={this.props.cells[row][column]}
       onClick={() => this.props.handleClick(row, column)}
     />
   }
@@ -35,16 +35,16 @@ class Board extends React.Component {
     let boxes = [];
     for (let boxRow = 0; boxRow < 3; ++boxRow) {
       for (let boxCol = 0; boxCol < 3; ++boxCol) {
-        let squares = [];
-        for (let squareRow = 0; squareRow < 3; ++squareRow) {
-          for (let squareCol = 0; squareCol < 3; ++squareCol) {
-            squares.push(this.renderSquare(
-              3 * boxRow + squareRow,
-              3 * boxCol + squareCol
+        let cells = [];
+        for (let cellRow = 0; cellRow < 3; ++cellRow) {
+          for (let cellCol = 0; cellCol < 3; ++cellCol) {
+            cells.push(this.renderCell(
+              3 * boxRow + cellRow,
+              3 * boxCol + cellCol
             ));
           }
         }
-        boxes.push(<div className="box">{squares}</div>);
+        boxes.push(<div className="box">{cells}</div>);
       }
     }
     return (<div className="board">{boxes}</div>);
@@ -57,13 +57,13 @@ class Game extends React.Component {
     this.state = {
       mode: "big",
       selected: null,
-      squares: Array(9),
+      cells: Array(9),
     };
 
     for (let row = 0; row < 9; row++) {
-      this.state.squares[row] = Array(9);
+      this.state.cells[row] = Array(9);
       for (let column = 0; column < 9; column++) {
-        this.state.squares[row][column] = {
+        this.state.cells[row][column] = {
           selected: false,
           fixed: false,
           value: null,
@@ -79,22 +79,22 @@ class Game extends React.Component {
   deselect = (state) => {
     console.log(`deselect()`);
     console.assert(state.selected);
-    state.squares[state.selected.row][state.selected.column].selected = false;
+    state.cells[state.selected.row][state.selected.column].selected = false;
     state.selected = null;
   }
 
   select = (state, row, column) => {
     console.log(`select(row=${row}, column=${column})`);
     console.assert(!state.selected);
-    state.squares[row][column].selected = true;
+    state.cells[row][column].selected = true;
     state.selected = {row: row, column: column}
   }
 
   setValue = (state, row, column, value) => {
     console.log(`setValue(row=${row}, column=${column}, value=${value})`);
-    let square = state.squares[row][column];
-    if (!square.fixed) {
-      square.value = value;
+    let cell = state.cells[row][column];
+    if (!cell.fixed) {
+      cell.value = value;
     }
   }
 
@@ -142,7 +142,7 @@ class Game extends React.Component {
       <div className="game">
         <div className="game-board">
           <Board
-            squares={this.state.squares}
+            cells={this.state.cells}
             handleClick={this.handleClick}
           />
         </div>
