@@ -30,6 +30,10 @@ body {
   background: #6DD288;
 }
 
+.cell.variable {
+  color: #2832c2;
+}
+
 .cell.incorrect {
   color: #f00;
 }

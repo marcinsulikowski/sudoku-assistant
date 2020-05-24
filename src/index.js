@@ -12,6 +12,9 @@ class Cell extends React.Component {
       if (this.props.cell.color !== null) {
         classNames += ` color${this.props.cell.color}`;
       }
+      if (!this.props.cell.fixed) {
+        classNames += " variable";
+      }
       if (this.props.cell.selected) {
         classNames += " selected";
       }
