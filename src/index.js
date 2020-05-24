@@ -89,6 +89,10 @@ class Game extends React.Component {
         let number = event.key.charCodeAt(0) - "0".charCodeAt(0);
         state.sudoku.setValueInSelectedCells(number);
       }
+    } else if (event.key === "Delete") {
+      if (state.mode === "big") {
+        state.sudoku.setValueInSelectedCells(null);
+      }
     } else if (event.key === "ArrowLeft") {
       state.sudoku.moveSelection(0, -1);
     } else if (event.key === "ArrowRight") {
