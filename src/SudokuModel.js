@@ -12,8 +12,8 @@ class SudokuModel {
           fixed: false,
           value: null,
           color: null,
-          centerMarks: Array(9).fill(false),
-          cornerMarks: Array(9).fill(false),
+          centerMarks: Array(10).fill(false),
+          cornerMarks: Array(10).fill(false),
         }
       }
     }
@@ -34,11 +34,11 @@ class SudokuModel {
     return this.cells[row][column];
   }
 
-  getSelectedCell() {
+  getSelectedCells() {
     if (this.selected) {
-      return this.cells[this.selected.row][this.selected.column];
+      return [this.cells[this.selected.row][this.selected.column]];
     } else {
-      return null;
+      return [];
     }
   }
 
@@ -92,23 +92,27 @@ class SudokuModel {
 
   deselect() {
     console.log(`deselect()`);
-    if (this.selected) {
-      this.getSelectedCell().selected = false;
-      this.selected = null;
+    for (const cell of this.getSelectedCells()) {
+      cell.selected = false;
     }
+    this.selected = null;
   }
 
   select(row, column) {
     console.log(`select(row=${row}, column=${column})`);
     this.deselect();
     this.selected = { row: row, column: column };
-    this.getSelectedCell().selected = true;
+    for (const cell of this.getSelectedCells()) {
+      cell.selected = true;
+    }
   }
 
   moveSelection(rowDiff, columnDiff) {
     console.log(`moveSelection(row=${rowDiff}, column=${columnDiff})`);
     if (this.selected) {
-      this.getSelectedCell().selected = false;
+      for (const cell of this.getSelectedCells()) {
+        cell.selected = false;
+      }
       this.selected.row = Math.max(
         0,
         Math.min(8, this.selected.row + rowDiff)
@@ -117,33 +121,48 @@ class SudokuModel {
         0,
         Math.min(8, this.selected.column + columnDiff)
       );
-      this.getSelectedCell().selected = true;
+      for (const cell of this.getSelectedCells()) {
+        cell.selected = true;
+      }
     }
   }
 
-  setValue(row, column, value) {
-    console.log(`setValue(row=${row}, column=${column}, value=${value})`);
-    let cell = this.getCell(row, column);
-    if (!cell.fixed) {
-      cell.value = value;
+  setValueInSelectedCells(value) {
+    for (const cell of this.getSelectedCells()) {
+      if (!cell.fixed) {
+        cell.value = value;
+      }
     }
     this.updateInvalid();
   }
 
-  setColor(row, column, color) {
-    console.log(`setColor(row=${row}, column=${column}, color=${color})`);
-    this.getCell(row, column).color = color;
+  clearValueInSelectedCells() {
+    for (const cell of this.getSelectedCells()) {
+      if (cell.value === null) {
+        cell.centerMarks.fill(false);
+        cell.cornerMarks.fill(false);
+      } else if (!cell.fixed) {
+        cell.value = null;
+        this.updateInvalid();
+      }
+    }
   }
 
-  setValueInSelectedCells(value) {
-    if (this.selected) {
-      this.setValue(this.selected.row, this.selected.column, value);
+  toggleCenterInSelectedCells(value) {
+    for (const cell of this.getSelectedCells()) {
+      cell.centerMarks[value] = !cell.centerMarks[value];
+    }
+  }
+
+  toggleCornerInSelectedCells(value) {
+    for (const cell of this.getSelectedCells()) {
+      cell.cornerMarks[value] = !cell.cornerMarks[value];
     }
   }
 
   setColorInSelectedCells(color) {
-    if (this.selected) {
-      this.setColor(this.selected.row, this.selected.column, color);
+    for (const cell of this.getSelectedCells()) {
+      cell.color = color;
     }
   }
 

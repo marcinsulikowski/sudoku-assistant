@@ -24,7 +24,6 @@ body {
   font-weight: bold;
   width: 1.5em;
   height: 1.5em;
-  line-height: 1.5em;
 }
 
 .cell.selected {
@@ -35,8 +34,50 @@ body {
   color: #f00;
 }
 
-.status {
-  margin-bottom: 10px;
+.cell.disable-pencil-marks .pencil-marks {
+  display: none;
+}
+
+.cell .pencil-marks {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  grid-template-areas:
+    "top-l    top-c    top-r"
+    "central  central  central"
+    "bottom-l bottom-c bottom-r";
+  font-size: 0.3em;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+}
+
+.cell .pencil-marks .top-l {
+  grid-area: top-l;
+}
+
+.cell .pencil-marks .top-c {
+  grid-area: top-c;
+}
+
+.cell .pencil-marks .top-r {
+  grid-area: top-r;
+}
+
+.cell .pencil-marks .bottom-l {
+  grid-area: bottom-l;
+}
+
+.cell .pencil-marks .bottom-c {
+  grid-area: bottom-c;
+}
+
+.cell .pencil-marks .bottom-r {
+  grid-area: bottom-r;
+}
+
+.cell .pencil-marks .central {
+  grid-area: central;
 }
 
 .game {

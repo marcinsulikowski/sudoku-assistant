@@ -18,7 +18,28 @@ class Cell extends React.Component {
       if (this.props.cell.incorrect) {
         classNames += " incorrect";
       }
+      if (this.props.cell.value !== null) {
+        classNames += " disable-pencil-marks"
+      }
       return classNames;
+    }
+
+    let cornerMarks = Array(6).fill("");
+    let cornerIndex = 0;
+    for (let value = 1; value <= 9; ++value) {
+      if (this.props.cell.cornerMarks[value]) {
+        cornerMarks[cornerIndex] += value;
+        if (++cornerIndex === cornerMarks.length) {
+          break;
+        }
+      }
+    }
+
+    let centerMarks = "";
+    for (let value = 1; value <= 9; ++value) {
+      if (this.props.cell.centerMarks[value]) {
+        centerMarks += value;
+      }
     }
 
     return (
@@ -26,6 +47,15 @@ class Cell extends React.Component {
         className={getClassName()}
         onClick={this.props.onClick}
       >
+        <div className="pencil-marks">
+          <div className="pencil-mark corner top-l">{cornerMarks[0]}</div>
+          <div className="pencil-mark corner top-r">{cornerMarks[1]}</div>
+          <div className="pencil-mark corner bottom-l">{cornerMarks[2]}</div>
+          <div className="pencil-mark corner bottom-r">{cornerMarks[3]}</div>
+          <div className="pencil-mark corner top-c">{cornerMarks[4]}</div>
+          <div className="pencil-mark corner bottom-c">{cornerMarks[5]}</div>
+          <div className="pencil-mark central">{centerMarks}</div>
+        </div>
         {this.props.cell.value}
       </div>
     );
@@ -90,15 +120,19 @@ class Game extends React.Component {
     console.log(`handleKey(${event.key})`);
     let state = this.cloneState();
     if (/^[1-9]$/.test(event.key)) {
+      let number = event.key.charCodeAt(0) - "0".charCodeAt(0);
       if (state.mode === "normal") {
-        let number = event.key.charCodeAt(0) - "0".charCodeAt(0);
         state.sudoku.setValueInSelectedCells(number);
+      } else if (state.mode === "center") {
+        state.sudoku.toggleCenterInSelectedCells(number);
+      } else if (state.mode === "corner") {
+        state.sudoku.toggleCornerInSelectedCells(number);
       }
     } else if (event.key === "Delete") {
-      if (state.mode === "normal") {
-        state.sudoku.setValueInSelectedCells(null);
-      } else if (state.mode === "color") {
+      if (state.mode === "color") {
         state.sudoku.setColorInSelectedCells(null);
+      } else {
+        state.sudoku.clearValueInSelectedCells();
       }
     } else if (event.key === "Enter") {
       if (state.mode === "color") {
