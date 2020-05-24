@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const SudokuModel = require('./SudokuModel').default;
 
@@ -59,7 +60,7 @@ class Game extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      mode: "big",
+      mode: "normal",
       sudoku: new SudokuModel(),
     };
   }
@@ -85,12 +86,12 @@ class Game extends React.Component {
     console.log(`handleKey(${event.key})`);
     let state = this.cloneState();
     if (/^[1-9]$/.test(event.key)) {
-      if (state.mode === "big") {
+      if (state.mode === "normal") {
         let number = event.key.charCodeAt(0) - "0".charCodeAt(0);
         state.sudoku.setValueInSelectedCells(number);
       }
     } else if (event.key === "Delete") {
-      if (state.mode === "big") {
+      if (state.mode === "normal") {
         state.sudoku.setValueInSelectedCells(null);
       }
     } else if (event.key === "ArrowLeft") {
@@ -116,17 +117,41 @@ class Game extends React.Component {
   }
 
   render() {
+    let renderModeButton = (mode) => {
+      let text = mode.charAt(0).toUpperCase() + mode.slice(1)
+      return (
+        <button className="btn btn-outline-dark mode">{text}</button>
+      );
+    }
+    let renderColorButton = (colorId) => {
+      return (
+        <button className="btn btn-outline-dark color">
+          <div class={`sample color${colorId}`}></div>
+        </button>
+      );
+    }
+
     return (
       <div className="game">
-        <div className="game-board">
-          <Board
-            sudoku={this.state.sudoku}
-            handleClick={this.handleClick}
-          />
-        </div>
-        <div className="game-info">
-          <div>{/* status */}</div>
-          <ol>{/* TODO */}</ol>
+        <Board
+          sudoku={this.state.sudoku}
+          handleClick={this.handleClick}
+        />
+        <div className="panel">
+          <div className="mode">
+            {renderModeButton("normal")}
+            {renderModeButton("center")}
+            {renderModeButton("corner")}
+            {renderColorButton(0)}
+            {renderColorButton(1)}
+            {renderColorButton(2)}
+            {renderColorButton(3)}
+            {renderColorButton(4)}
+            {renderColorButton(5)}
+            {renderColorButton(6)}
+            {renderColorButton(7)}
+            {renderColorButton(8)}
+          </div>
         </div>
       </div>
     );
