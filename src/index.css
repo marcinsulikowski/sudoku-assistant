@@ -3,42 +3,38 @@ body {
   margin: 20px;
 }
 
-ol,
-ul {
-  padding-left: 30px;
+.board {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  grid-template-rows: auto auto auto;
+  border: 3px solid #444;
+  font-size: 50px;
 }
 
-.board-row:after {
-  clear: both;
-  content: "";
-  display: table;
+.box {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  grid-template-rows: auto auto auto;
+  border: 2px solid #444;
+}
+
+.square {
+  border: 1px solid #999;
+  background: #fff;
+
+  text-align: center;
+  font-weight: bold;
+  width: 1.5em;
+  height: 1.5em;
+  line-height: 1.5em;
+}
+
+.square.selected {
+  background: #6DD288;
 }
 
 .status {
   margin-bottom: 10px;
-}
-
-.square {
-  background: #fff;
-  border: 1px solid #999;
-  float: left;
-  font-size: 24px;
-  font-weight: bold;
-  line-height: 34px;
-  height: 34px;
-  margin-right: -1px;
-  margin-top: -1px;
-  padding: 0;
-  text-align: center;
-  width: 34px;
-}
-
-.square:focus {
-  outline: none;
-}
-
-.kbd-navigation .square:focus {
-  background: #ddd;
 }
 
 .game {
