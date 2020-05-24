@@ -7,11 +7,14 @@ const SudokuModel = require('./SudokuModel').default;
 class Cell extends React.Component {
   render() {
     let getClassName = () => {
+      let classNames = "cell";
       if (this.props.cell.selected) {
-        return "cell selected";
-      } else {
-        return "cell";
+        classNames += " selected";
       }
+      if (this.props.cell.incorrect) {
+        classNames += " incorrect";
+      }
+      return classNames;
     }
 
     return (

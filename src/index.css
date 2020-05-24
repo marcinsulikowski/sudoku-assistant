@@ -33,6 +33,10 @@ body {
   background: #6DD288;
 }
 
+.cell.incorrect {
+  color: #f00;
+}
+
 .status {
   margin-bottom: 10px;
 }
