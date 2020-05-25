@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
+import './index.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const SudokuModel = require('./SudokuModel').default;
@@ -211,28 +211,23 @@ class Game extends React.Component {
   render() {
     let renderModeButton = (mode, shortcut) => {
       let modeUpper = mode.charAt(0).toUpperCase() + mode.slice(1);
-      let text = `${modeUpper} (${shortcut})`
-      let btnClass = this.state.mode === mode
-        ? "btn-dark"
-        : "btn-outline-dark";
+      let isSelected = this.state.mode === mode;
       return (
         <button
-          className={`btn mode ${btnClass}`}
+          className={isSelected ? "selected" : null}
           onClick={() => this.handleSetMode(mode, null)}
         >
-          {text}
+          {`${modeUpper} (${shortcut})`}
         </button>
       );
     }
 
     let renderColorButton = (colorId) => {
-      let btnClass = (this.state.mode === "color"
-          && this.state.selectedColor === colorId)
-        ? "btn-dark"
-        : "btn-outline-dark";
+      let isSelected = (this.state.mode === "color"
+                        && this.state.selectedColor === colorId)
       return (
         <button
-          className={`btn color ${btnClass}`}
+          className={isSelected ? "selected" : null}
           onClick={() => this.handleSetMode("color", colorId)}
         >
           <div className={`sample color${colorId}`}></div>
@@ -263,12 +258,7 @@ class Game extends React.Component {
           </div>
           <div className="actions">
             <textarea ref={this.saveTextArea}></textarea>
-            <button
-              className="btn btn-outline-dark"
-              onClick={this.handleSave}
-            >
-              Copy to clipboard
-            </button>
+            <button onClick={this.handleSave}>Copy to clipboard</button>
           </div>
         </div>
       </div>
