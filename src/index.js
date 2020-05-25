@@ -261,7 +261,7 @@ class Game extends React.Component {
             {renderColorButton(7)}
             {renderColorButton(8)}
           </div>
-          <div className="save">
+          <div className="actions">
             <textarea ref={this.saveTextArea}></textarea>
             <button
               className="btn btn-outline-dark"

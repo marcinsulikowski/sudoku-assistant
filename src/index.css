@@ -111,8 +111,12 @@ body {
   height: 1em;
 }
 
-.panel .save textarea {
+.panel .actions textarea {
   display: none;
+}
+
+.panel .actions button {
+  width: 100%;
 }
 
 .color0 {
