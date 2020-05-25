@@ -16,6 +16,13 @@ function bitmaskAndInPlace(valueBitmask1, valueBitmask2) {
 }
 
 
+function bitmaskOrInPlace(valueBitmask1, valueBitmask2) {
+  for (let value = 1; value <= 9; ++value) {
+    valueBitmask1[value] = (valueBitmask1[value] || valueBitmask2[value]);
+  }
+}
+
+
 class SudokuModel {
   constructor() {
     this.selected = null;
@@ -115,18 +122,23 @@ class SudokuModel {
     return cells;
   }
 
+  getAllBoxes() {
+    let boxes = [];
+    for (let boxRow = 0; boxRow < 3; boxRow++) {
+      for (let boxColumn = 0; boxColumn < 3; boxColumn++) {
+        boxes.push(this.getBoxCells(boxRow, boxColumn));
+      }
+    }
+    return boxes;
+  }
+
   getAllRegions() {
-    let regions = [];
+    let regions = this.getAllBoxes();
     for (let row = 0; row < 9; row++) {
       regions.push(this.getRowCells(row));
     }
     for (let column = 0; column < 9; column++) {
       regions.push(this.getColumnCells(column));
-    }
-    for (let boxRow = 0; boxRow < 3; boxRow++) {
-      for (let boxColumn = 0; boxColumn < 3; boxColumn++) {
-        regions.push(this.getBoxCells(boxRow, boxColumn));
-      }
     }
     return regions;
   }
@@ -216,6 +228,7 @@ class SudokuModel {
     this.updatePossibleValues();
     this.clearImpossibleMarks();
     this.autofillCenterMarks();
+    this.autofillCornerMarks();
   }
 
   updateIncorrect() {
@@ -268,6 +281,49 @@ class SudokuModel {
           && bitmaskCount(cell.centerMarks) === 0
           && bitmaskCount(cell.possibleValues) <= 3) {
         cell.centerMarks = cell.possibleValues.slice();
+      }
+    }
+  }
+
+  autofillCornerMarks() {
+    for (const box of this.getAllBoxes()) {
+      // Find out which values are not marked yet in any corner of the
+      // box and in how many cells of the box can each value go.
+      let alreadyMarkedValues = Array(10).fill(false);
+      let possibleCellsForValue = Array(10).fill(0);
+      let hasIncorrectCell = false;
+      for (const cell of box) {
+        if (cell.incorrect) {
+          hasIncorrectCell = true;
+          break;
+        } else if (cell.value === null) {
+          bitmaskOrInPlace(alreadyMarkedValues, cell.cornerMarks);
+          for (let value = 1; value <= 9; ++value) {
+            if (cell.possibleValues[value]) {
+              possibleCellsForValue[value] += 1;
+            }
+          }
+        }
+      }
+
+      // Don't add any corner marks in boxes where any
+      // value is already incorrect.
+      if (hasIncorrectCell) {
+        continue;
+      }
+
+      for (let value = 1; value <= 9; ++value) {
+        if (alreadyMarkedValues[value]
+            || possibleCellsForValue[value] === 0
+            || possibleCellsForValue[value] > 2) {
+          // This value does not need adding corner marks.
+          continue;
+        }
+        for (const cell of box) {
+          if (cell.value === null && cell.possibleValues[value]) {
+            cell.cornerMarks[value] = true;
+          }
+        }
       }
     }
   }
