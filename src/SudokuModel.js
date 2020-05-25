@@ -224,8 +224,10 @@ class SudokuModel {
   }
 
   onValueChange() {
-    this.updateIncorrect();
     do {
+      if (this.updateIncorrect()) {
+        return;
+      }
       this.updatePossibleValues();
       this.clearImpossibleMarks();
       this.autofillCenterMarks();
@@ -237,6 +239,8 @@ class SudokuModel {
     for (const cell of this.getAllCells()) {
       cell.incorrect = false;
     }
+
+    let hasIncorrectCells = false;
     for (const region of this.getAllRegions()) {
       let counts = Array(10).fill(0);
       for (const cell of region) {
@@ -247,9 +251,11 @@ class SudokuModel {
       for (const cell of region) {
         if (cell.value !== null && counts[cell.value] > 1) {
           cell.incorrect = true;
+          hasIncorrectCells = true;
         }
       }
     }
+    return hasIncorrectCells;
   }
 
   updatePossibleValues() {
@@ -260,7 +266,7 @@ class SudokuModel {
     for (const region of this.getAllRegions()) {
       let possibleInRegion = Array(10).fill(true);
       for (const cell of region) {
-        if (cell.value !== null && !cell.incorrect) {
+        if (cell.value !== null) {
           possibleInRegion[cell.value] = false;
         }
       }
@@ -293,12 +299,8 @@ class SudokuModel {
       // box and in how many cells of the box can each value go.
       let alreadyMarkedValues = Array(10).fill(false);
       let possibleCellsForValue = Array(10).fill(0);
-      let hasIncorrectCell = false;
       for (const cell of box) {
-        if (cell.incorrect) {
-          hasIncorrectCell = true;
-          break;
-        } else if (cell.value === null) {
+        if (cell.value === null) {
           bitmaskOrInPlace(alreadyMarkedValues, cell.cornerMarks);
           for (let value = 1; value <= 9; ++value) {
             if (cell.possibleValues[value]) {
@@ -306,12 +308,6 @@ class SudokuModel {
             }
           }
         }
-      }
-
-      // Don't add any corner marks in boxes where any
-      // value is already incorrect.
-      if (hasIncorrectCell) {
-        continue;
       }
 
       for (let value = 1; value <= 9; ++value) {
