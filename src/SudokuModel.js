@@ -1,3 +1,21 @@
+function bitmaskCount(valueBitmask) {
+  let trueCount = 0;
+  for (let value = 1; value <= 9; ++value) {
+    if (valueBitmask[value]) {
+      trueCount++;
+    }
+  }
+  return trueCount;
+}
+
+
+function bitmaskAndInPlace(valueBitmask1, valueBitmask2) {
+  for (let value = 1; value <= 9; ++value) {
+    valueBitmask1[value] = (valueBitmask1[value] && valueBitmask2[value]);
+  }
+}
+
+
 class SudokuModel {
   constructor() {
     this.selected = null;
@@ -17,6 +35,7 @@ class SudokuModel {
           color: null,
           centerMarks: Array(10).fill(false),
           cornerMarks: Array(10).fill(false),
+          possibleValues: Array(10).fill(false),
         }
       }
     }
@@ -49,7 +68,7 @@ class SudokuModel {
       cell.cornerMarks.fill(false);
       cell.centerMarks.fill(false);
     }
-    this.updateInvalid();
+    this.onValueChange();
   }
 
   getCell(row, column) {
@@ -155,7 +174,7 @@ class SudokuModel {
         cell.value = value;
       }
     }
-    this.updateInvalid();
+    this.onValueChange();
   }
 
   clearValueInSelectedCells() {
@@ -165,7 +184,7 @@ class SudokuModel {
         cell.cornerMarks.fill(false);
       } else if (!cell.fixed) {
         cell.value = null;
-        this.updateInvalid();
+        this.onValueChange();
       }
     }
   }
@@ -192,26 +211,53 @@ class SudokuModel {
     }
   }
 
-  updateInvalid() {
+  onValueChange() {
+    this.updateIncorrect();
+    this.updatePossibleValues();
+    this.clearImpossibleMarks();
+  }
+
+  updateIncorrect() {
     for (const cell of this.getAllCells()) {
       cell.incorrect = false;
     }
     for (const region of this.getAllRegions()) {
-      this.markDuplicatesAsInvalid(region);
+      let counts = Array(10).fill(0);
+      for (const cell of region) {
+        if (cell.value !== null) {
+          counts[cell.value]++;
+        }
+      }
+      for (const cell of region) {
+        if (cell.value !== null && counts[cell.value] > 1) {
+          cell.incorrect = true;
+        }
+      }
     }
   }
 
-  markDuplicatesAsInvalid(region) {
-    let counts = Array(10).fill(0);
-    for (const cell of region) {
-      if (cell.value !== null) {
-        counts[cell.value]++;
+  updatePossibleValues() {
+    for (const cell of this.getAllCells()) {
+      cell.possibleValues = Array(10).fill(true);
+      cell.possibleValues[0] = false;  // 0 is not a valid value
+    }
+    for (const region of this.getAllRegions()) {
+      let possibleInRegion = Array(10).fill(true);
+      for (const cell of region) {
+        if (cell.value !== null && !cell.incorrect) {
+          possibleInRegion[cell.value] = false;
+        }
+      }
+      for (const cell of region) {
+        bitmaskAndInPlace(cell.possibleValues, possibleInRegion);
       }
     }
-    for (const cell of region) {
-      if (cell.value !== null && counts[cell.value] > 1) {
-        cell.incorrect = true;
-      }
+  }
+
+  clearImpossibleMarks() {
+    for (const cell of this.getAllCells()) {
+      bitmaskAndInPlace(cell.centerMarks, cell.possibleValues);
+      bitmaskAndInPlace(cell.cornerMarks, cell.possibleValues);
     }
   }
 }
