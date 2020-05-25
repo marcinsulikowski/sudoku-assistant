@@ -334,6 +334,35 @@ class SudokuModel {
         changed = true;
       }
     }
+
+    for (const region of this.getAllBoxes()) {
+      // Find values which can go to single cell only in the given region.
+      let possibleCellsForValue = Array(10).fill(0);
+      let alreadyFilledValues = Array(10).fill(false);
+      let targetCells = Array(10).fill(null);
+      for (const cell of region) {
+        if (cell.value !== null) {
+          alreadyFilledValues[cell.value] = true;
+        } else {
+          for (let value = 1; value <= 9; ++value) {
+            if (cell.possibleValues[value]) {
+              if (++possibleCellsForValue[value] === 1) {
+                targetCells[value] = cell;
+              } else {
+                targetCells[value] = null;
+              }
+            }
+          }
+        }
+      }
+      // Fill cells which are the only candidates for the given value.
+      for (let value = 1; value <= 9; ++value) {
+        if (!alreadyFilledValues[value] && targetCells[value] !== null) {
+          targetCells[value].value = value;
+          changed = true;
+        }
+      }
+    }
     return changed;
   }
 }
