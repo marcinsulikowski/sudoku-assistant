@@ -225,10 +225,12 @@ class SudokuModel {
 
   onValueChange() {
     this.updateIncorrect();
-    this.updatePossibleValues();
-    this.clearImpossibleMarks();
-    this.autofillCenterMarks();
-    this.autofillCornerMarks();
+    do {
+      this.updatePossibleValues();
+      this.clearImpossibleMarks();
+      this.autofillCenterMarks();
+      this.autofillCornerMarks();
+    } while (this.autofillSingleValues());
   }
 
   updateIncorrect() {
@@ -326,6 +328,17 @@ class SudokuModel {
         }
       }
     }
+  }
+
+  autofillSingleValues() {
+    let changed = false;
+    for (const cell of this.getAllCells()) {
+      if (cell.value === null && bitmaskCount(cell.possibleValues) === 1) {
+        cell.value = cell.possibleValues.indexOf(true);
+        changed = true;
+      }
+    }
+    return changed;
   }
 }
 
