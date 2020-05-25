@@ -214,7 +214,7 @@ class Game extends React.Component {
       let isSelected = this.state.mode === mode;
       return (
         <button
-          className={isSelected ? "selected" : null}
+          className={"mode " + (isSelected ? "selected" : "")}
           onClick={() => this.handleSetMode(mode, null)}
         >
           {`${modeUpper} (${shortcut})`}
@@ -227,7 +227,7 @@ class Game extends React.Component {
                         && this.state.selectedColor === colorId)
       return (
         <button
-          className={isSelected ? "selected" : null}
+          className={"color " + (isSelected ? "selected" : "")}
           onClick={() => this.handleSetMode("color", colorId)}
         >
           <div className={`sample color${colorId}`}></div>
@@ -242,7 +242,7 @@ class Game extends React.Component {
           handleClick={this.handleClick}
         />
         <div className="panel">
-          <div className="mode">
+          <div className="controls">
             {renderModeButton("normal", "A")}
             {renderModeButton("center", "Z")}
             {renderModeButton("corner", "X")}
@@ -255,11 +255,9 @@ class Game extends React.Component {
             {renderColorButton(6)}
             {renderColorButton(7)}
             {renderColorButton(8)}
-          </div>
-          <div className="actions">
-            <textarea ref={this.saveTextArea}></textarea>
             <button onClick={this.handleSave}>Copy to clipboard</button>
           </div>
+          <textarea className="save" ref={this.saveTextArea}></textarea>
         </div>
       </div>
     );
