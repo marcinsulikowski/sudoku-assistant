@@ -215,6 +215,7 @@ class SudokuModel {
     this.updateIncorrect();
     this.updatePossibleValues();
     this.clearImpossibleMarks();
+    this.autofillCenterMarks();
   }
 
   updateIncorrect() {
@@ -258,6 +259,16 @@ class SudokuModel {
     for (const cell of this.getAllCells()) {
       bitmaskAndInPlace(cell.centerMarks, cell.possibleValues);
       bitmaskAndInPlace(cell.cornerMarks, cell.possibleValues);
+    }
+  }
+
+  autofillCenterMarks() {
+    for (const cell of this.getAllCells()) {
+      if (cell.value === null
+          && bitmaskCount(cell.centerMarks) === 0
+          && bitmaskCount(cell.possibleValues) <= 3) {
+        cell.centerMarks = cell.possibleValues.slice();
+      }
     }
   }
 }
