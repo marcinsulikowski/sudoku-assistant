@@ -75,7 +75,6 @@ class SudokuModel {
       cell.cornerMarks.fill(false);
       cell.centerMarks.fill(false);
     }
-    this.onValueChange();
   }
 
   getCell(row, column) {
@@ -186,7 +185,6 @@ class SudokuModel {
         cell.value = value;
       }
     }
-    this.onValueChange();
   }
 
   clearValueInSelectedCells() {
@@ -196,7 +194,6 @@ class SudokuModel {
         cell.cornerMarks.fill(false);
       } else if (!cell.fixed) {
         cell.value = null;
-        this.onValueChange();
       }
     }
   }
@@ -223,16 +220,32 @@ class SudokuModel {
     }
   }
 
-  onValueChange() {
+  runHelpers(helpers) {
+    let valuesAdded = false;
     do {
       if (this.updateIncorrect()) {
         return;
       }
       this.updatePossibleValues();
-      this.clearImpossibleMarks();
-      this.autofillCenterMarks();
-      this.autofillCornerMarks();
-    } while (this.autofillSingleValues());
+
+      if (helpers.removeInvalidMarks) {
+        this.clearImpossibleMarks();
+      }
+      if (helpers.addCenterMarks) {
+        this.autofillCenterMarks();
+      }
+      if (helpers.addCornerMarks) {
+        this.autofillCornerMarks();
+      }
+
+      valuesAdded = false;
+      if (helpers.fillOnSingleCenterMark) {
+        valuesAdded |= this.autofillValuesOnSingleCenterMarks();
+      }
+      if (helpers.fillOnSingleCornerMark) {
+        valuesAdded |= this.autofillValuesOnSingleCornerMarks();
+      }
+    } while (valuesAdded);
   }
 
   updateIncorrect() {
@@ -326,7 +339,7 @@ class SudokuModel {
     }
   }
 
-  autofillSingleValues() {
+  autofillValuesOnSingleCenterMarks() {
     let changed = false;
     for (const cell of this.getAllCells()) {
       if (cell.value === null && bitmaskCount(cell.possibleValues) === 1) {
@@ -334,7 +347,11 @@ class SudokuModel {
         changed = true;
       }
     }
+    return changed;
+  }
 
+  autofillValuesOnSingleCornerMarks() {
+    let changed = false;
     for (const region of this.getAllBoxes()) {
       // Find values which can go to single cell only in the given region.
       let possibleCellsForValue = Array(10).fill(0);

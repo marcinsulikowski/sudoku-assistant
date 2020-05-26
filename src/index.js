@@ -117,6 +117,13 @@ class Game extends React.Component {
       mode: "normal",
       selectedColor: 0,
       sudoku: new SudokuModel(),
+      helpers: {
+        removeInvalidMarks: true,
+        addCenterMarks: true,
+        addCornerMarks: true,
+        fillOnSingleCenterMark: true,
+        fillOnSingleCornerMark: true,
+      }
     };
     this.history = [this.state.sudoku];
     this.historyPosition = 0;
@@ -176,6 +183,7 @@ class Game extends React.Component {
       let number = keyWithModifiers.charCodeAt(0) - "0".charCodeAt(0);
       if (this.state.mode === "normal") {
         sudoku.setValueInSelectedCells(number);
+        sudoku.runHelpers(this.state.helpers);
         this.pushToUndoList(sudoku);
       } else if (this.state.mode === "center") {
         sudoku.toggleCenterInSelectedCells(number);
@@ -190,6 +198,7 @@ class Game extends React.Component {
         this.pushToUndoList(sudoku);
       } else {
         sudoku.clearValueInSelectedCells();
+        sudoku.runHelpers(this.state.helpers);
         this.pushToUndoList(sudoku);
       }
     } else if (keyWithModifiers === "Enter") {
@@ -222,6 +231,7 @@ class Game extends React.Component {
     console.log(`handleLoad(state='${savedPuzzle}')`);
     let sudoku = this.state.sudoku.clone();
     sudoku.loadPuzzle(savedPuzzle);
+    sudoku.runHelpers(this.state.helpers);
     this.pushToUndoList(sudoku);
     this.setState({sudoku: sudoku});
   }
@@ -244,6 +254,22 @@ class Game extends React.Component {
     if (this.historyPosition < this.history.length - 1) {
       this.setState({sudoku: this.history[++this.historyPosition]});
     }
+  }
+
+  handleHelperFlagChange = (name) => {
+    this.setState((state) => {
+      let helpers = {
+        ...state.helpers,
+        [name]: !state.helpers[name]
+      }
+      let sudoku = state.sudoku.clone();
+      sudoku.runHelpers(helpers);
+      this.pushToUndoList(sudoku);
+      return {
+        sudoku: sudoku,
+        helpers: helpers,
+      };
+    });
   }
 
   // ReactJS stuff
@@ -283,6 +309,19 @@ class Game extends React.Component {
       );
     }
 
+    let renderHelperFlag = (flagName, description) => {
+      return (
+        <div className="helper-flag">
+          <input
+            type="checkbox"
+            checked={this.state.helpers[flagName]}
+            onChange={(event) => this.handleHelperFlagChange(flagName)}
+          />
+          <label>{description}</label>
+        </div>
+      );
+    }
+
     return (
       <div className="game" onPaste={this.handleLoad}>
         <Board
@@ -306,6 +345,26 @@ class Game extends React.Component {
             <button onClick={this.handleSave}>Copy to clipboard</button>
             <button onClick={this.handleUndo}>Undo</button>
             <button onClick={this.handleRedo}>Redo</button>
+            {renderHelperFlag(
+              "removeInvalidMarks",
+              "Remove invalid marks"
+            )}
+            {renderHelperFlag(
+              "addCenterMarks",
+              "Automatically add center marks"
+            )}
+            {renderHelperFlag(
+              "addCornerMarks",
+              "Automatically add corner marks"
+            )}
+            {renderHelperFlag(
+              "fillOnSingleCenterMark",
+              "Automatically fill values based on center marks"
+            )}
+            {renderHelperFlag(
+              "fillOnSingleCornerMark",
+              "Automatically fill values based on corner marks"
+            )}
           </div>
           <textarea className="save" ref={this.saveTextArea}></textarea>
         </div>
