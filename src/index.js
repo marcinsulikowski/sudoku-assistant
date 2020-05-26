@@ -122,14 +122,6 @@ class Game extends React.Component {
     this.historyPosition = 0;
   }
 
-  // Methods which operate on the state
-
-  cloneState() {
-    let state = Object.assign({}, this.state);
-    state.sudoku = this.state.sudoku.clone();
-    return state;
-  }
-
   pushToUndoList(sudoku) {
     if (this.historyPosition < this.history.length - 1) {
       this.history = this.history.slice(0, this.historyPosition + 1);
@@ -142,9 +134,9 @@ class Game extends React.Component {
 
   handleClick = (row, column) => {
     console.log(`handleClick(row=${row}, column=${column})`);
-    let state = this.cloneState();
-    state.sudoku.select(row, column);
-    this.setState(state);
+    let sudoku = this.state.sudoku.clone();
+    sudoku.select(row, column);
+    this.setState({sudoku: sudoku});
   }
 
   handleKey = (event) => {
@@ -158,80 +150,80 @@ class Game extends React.Component {
       return this.handleRedo();
     }
 
-    // Shortcuts which this function handles itself.
-    let state = this.cloneState();
+    // Shortcuts which don't modify the state of sudoku
+    if (keyWithModifiers === " ") {
+      return this.setState((state) => {
+        switch (state.mode) {
+          case "normal": return {mode: "center"};
+          case "center": return {mode: "corner"};
+          case "corner": return {mode: "color"};
+          default:       return {mode: "normal"};
+        }
+      });
+    } else if (keyWithModifiers === "a") {
+      return this.setState({mode: "normal"});
+    } else if (keyWithModifiers === "z") {
+      return this.setState({mode: "center"});
+    } else if (keyWithModifiers === "x") {
+      return this.setState({mode: "corner"});
+    } else if (keyWithModifiers === "c") {
+      return this.setState({mode: "color"});
+    }
+
+    // Shortcuts which modify the sudoku.
+    let sudoku = this.state.sudoku.clone();
     if (/^[1-9]$/.test(keyWithModifiers)) {
       let number = keyWithModifiers.charCodeAt(0) - "0".charCodeAt(0);
-      if (state.mode === "normal") {
-        state.sudoku.setValueInSelectedCells(number);
-        this.pushToUndoList(state.sudoku);
-      } else if (state.mode === "center") {
-        state.sudoku.toggleCenterInSelectedCells(number);
-        this.pushToUndoList(state.sudoku);
-      } else if (state.mode === "corner") {
-        state.sudoku.toggleCornerInSelectedCells(number);
-        this.pushToUndoList(state.sudoku);
+      if (this.state.mode === "normal") {
+        sudoku.setValueInSelectedCells(number);
+        this.pushToUndoList(sudoku);
+      } else if (this.state.mode === "center") {
+        sudoku.toggleCenterInSelectedCells(number);
+        this.pushToUndoList(sudoku);
+      } else if (this.state.mode === "corner") {
+        sudoku.toggleCornerInSelectedCells(number);
+        this.pushToUndoList(sudoku);
       }
     } else if (keyWithModifiers === "Delete") {
-      if (state.mode === "color") {
-        state.sudoku.setColorInSelectedCells(null);
-        this.pushToUndoList(state.sudoku);
+      if (this.state.mode === "color") {
+        sudoku.setColorInSelectedCells(null);
+        this.pushToUndoList(sudoku);
       } else {
-        state.sudoku.clearValueInSelectedCells();
-        this.pushToUndoList(state.sudoku);
+        sudoku.clearValueInSelectedCells();
+        this.pushToUndoList(sudoku);
       }
     } else if (keyWithModifiers === "Enter") {
-      if (state.mode === "color") {
-        state.sudoku.setColorInSelectedCells(state.selectedColor);
-        this.pushToUndoList(state.sudoku);
+      if (this.state.mode === "color") {
+        sudoku.setColorInSelectedCells(this.state.selectedColor);
+        this.pushToUndoList(sudoku);
       }
     } else if (keyWithModifiers === "ArrowLeft") {
-      state.sudoku.moveSelection(0, -1);
+      sudoku.moveSelection(0, -1);
     } else if (keyWithModifiers === "ArrowRight") {
-      state.sudoku.moveSelection(0, +1);
+      sudoku.moveSelection(0, +1);
     } else if (keyWithModifiers === "ArrowUp") {
-      state.sudoku.moveSelection(-1, 0);
+      sudoku.moveSelection(-1, 0);
     } else if (keyWithModifiers === "ArrowDown") {
-      state.sudoku.moveSelection(+1, 0);
-    } else if (keyWithModifiers === " ") {
-      if (state.mode === "normal") {
-        state.mode = "center";
-      } else if (state.mode === "center") {
-        state.mode = "corner";
-      } else if (state.mode === "corner") {
-        state.mode = "color";
-      } else {
-        state.mode = "normal";
-      }
-    } else if (keyWithModifiers === "a") {
-      state.mode = "normal";
-    } else if (keyWithModifiers === "z") {
-      state.mode = "center";
-    } else if (keyWithModifiers === "x") {
-      state.mode = "corner";
-    } else if (keyWithModifiers === "c") {
-      state.mode = "color";
+      sudoku.moveSelection(+1, 0);
     }
-    this.setState(state);
+    this.setState({sudoku: sudoku});
   }
 
   handleSetMode = (mode, color) => {
     console.log(`handleSetMode(mode=${mode}, color=${color})`);
-    let state = this.cloneState();
-    state.mode = mode;
+    this.setState({mode: mode});
     if (color !== null) {
-      state.selectedColor = color;
+      this.setState({selectedColor: color});
     }
-    this.setState(state);
   }
 
   handleLoad = (event) => {
     let savedPuzzle = event.clipboardData.getData("Text");
     console.log(`handleLoad(state='${savedPuzzle}')`);
-    let state = this.cloneState();
-    state.sudoku.loadPuzzle(savedPuzzle);
-    this.pushToUndoList(state.sudoku);
-    this.setState(state);
+    let sudoku = this.state.sudoku.clone();
+    sudoku.loadPuzzle(savedPuzzle);
+    this.pushToUndoList(sudoku);
+    this.setState({sudoku: sudoku});
   }
 
   handleSave = () => {
@@ -244,17 +236,13 @@ class Game extends React.Component {
 
   handleUndo = () => {
     if (this.historyPosition > 0) {
-      let state = this.cloneState();
-      state.sudoku = this.history[--this.historyPosition];
-      this.setState(state);
+      this.setState({sudoku: this.history[--this.historyPosition]});
     }
   }
 
   handleRedo = () => {
     if (this.historyPosition < this.history.length - 1) {
-      let state = this.cloneState();
-      state.sudoku = this.history[++this.historyPosition];
-      this.setState(state);
+      this.setState({sudoku: this.history[++this.historyPosition]});
     }
   }
 
