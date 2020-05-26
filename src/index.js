@@ -150,6 +150,15 @@ class Game extends React.Component {
   handleKey = (event) => {
     let keyWithModifiers = getKeyWithModifiers(event);
     console.log(`handleKey(${keyWithModifiers})`);
+
+    // Shortcuts handled by delegating to other event handlers.
+    if (keyWithModifiers === "Control-z") {
+      return this.handleUndo();
+    } else if (keyWithModifiers === "Control-y") {
+      return this.handleRedo();
+    }
+
+    // Shortcuts which this function handles itself.
     let state = this.cloneState();
     if (/^[1-9]$/.test(keyWithModifiers)) {
       let number = keyWithModifiers.charCodeAt(0) - "0".charCodeAt(0);
