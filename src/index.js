@@ -5,6 +5,23 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const SudokuModel = require('./SudokuModel').default;
 
+function getKeyWithModifiers(keyboardEvent) {
+  let name = keyboardEvent.key;
+  if (keyboardEvent.metaKey) {
+    name = "Meta-" + name;
+  }
+  if (keyboardEvent.altKey) {
+    name = "Atl-" + name;
+  }
+  if (keyboardEvent.ctrlKey) {
+    name = "Control-" + name;
+  }
+  if (keyboardEvent.shiftKey) {
+    name = "Shift-" + name;
+  }
+  return name;
+}
+
 class Cell extends React.Component {
   render() {
     let getClassName = () => {
@@ -131,10 +148,11 @@ class Game extends React.Component {
   }
 
   handleKey = (event) => {
-    console.log(`handleKey(${event.key})`);
+    let keyWithModifiers = getKeyWithModifiers(event);
+    console.log(`handleKey(${keyWithModifiers})`);
     let state = this.cloneState();
-    if (/^[1-9]$/.test(event.key)) {
-      let number = event.key.charCodeAt(0) - "0".charCodeAt(0);
+    if (/^[1-9]$/.test(keyWithModifiers)) {
+      let number = keyWithModifiers.charCodeAt(0) - "0".charCodeAt(0);
       if (state.mode === "normal") {
         state.sudoku.setValueInSelectedCells(number);
         this.pushToUndoList(state.sudoku);
@@ -145,7 +163,7 @@ class Game extends React.Component {
         state.sudoku.toggleCornerInSelectedCells(number);
         this.pushToUndoList(state.sudoku);
       }
-    } else if (event.key === "Delete") {
+    } else if (keyWithModifiers === "Delete") {
       if (state.mode === "color") {
         state.sudoku.setColorInSelectedCells(null);
         this.pushToUndoList(state.sudoku);
@@ -153,20 +171,20 @@ class Game extends React.Component {
         state.sudoku.clearValueInSelectedCells();
         this.pushToUndoList(state.sudoku);
       }
-    } else if (event.key === "Enter") {
+    } else if (keyWithModifiers === "Enter") {
       if (state.mode === "color") {
         state.sudoku.setColorInSelectedCells(state.selectedColor);
         this.pushToUndoList(state.sudoku);
       }
-    } else if (event.key === "ArrowLeft") {
+    } else if (keyWithModifiers === "ArrowLeft") {
       state.sudoku.moveSelection(0, -1);
-    } else if (event.key === "ArrowRight") {
+    } else if (keyWithModifiers === "ArrowRight") {
       state.sudoku.moveSelection(0, +1);
-    } else if (event.key === "ArrowUp") {
+    } else if (keyWithModifiers === "ArrowUp") {
       state.sudoku.moveSelection(-1, 0);
-    } else if (event.key === "ArrowDown") {
+    } else if (keyWithModifiers === "ArrowDown") {
       state.sudoku.moveSelection(+1, 0);
-    } else if (event.key === " ") {
+    } else if (keyWithModifiers === " ") {
       if (state.mode === "normal") {
         state.mode = "center";
       } else if (state.mode === "center") {
@@ -176,13 +194,13 @@ class Game extends React.Component {
       } else {
         state.mode = "normal";
       }
-    } else if (event.key === "a") {
+    } else if (keyWithModifiers === "a") {
       state.mode = "normal";
-    } else if (event.key === "z") {
+    } else if (keyWithModifiers === "z") {
       state.mode = "center";
-    } else if (event.key === "x") {
+    } else if (keyWithModifiers === "x") {
       state.mode = "corner";
-    } else if (event.key === "c") {
+    } else if (keyWithModifiers === "c") {
       state.mode = "color";
     }
     this.setState(state);
