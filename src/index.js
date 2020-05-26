@@ -95,12 +95,14 @@ class Board extends React.Component {
 class Game extends React.Component {
   constructor(props) {
     super(props);
+    this.saveTextArea = React.createRef();
     this.state = {
       mode: "normal",
       selectedColor: 0,
       sudoku: new SudokuModel(),
     };
-    this.saveTextArea = React.createRef();
+    this.history = [this.state.sudoku];
+    this.historyPosition = 0;
   }
 
   // Methods which operate on the state
@@ -109,6 +111,14 @@ class Game extends React.Component {
     let state = Object.assign({}, this.state);
     state.sudoku = this.state.sudoku.clone();
     return state;
+  }
+
+  pushToUndoList(sudoku) {
+    if (this.historyPosition < this.history.length - 1) {
+      this.history = this.history.slice(0, this.historyPosition + 1);
+    }
+    this.history.push(sudoku);
+    this.historyPosition++;
   }
 
   // Event handlers
@@ -127,20 +137,26 @@ class Game extends React.Component {
       let number = event.key.charCodeAt(0) - "0".charCodeAt(0);
       if (state.mode === "normal") {
         state.sudoku.setValueInSelectedCells(number);
+        this.pushToUndoList(state.sudoku);
       } else if (state.mode === "center") {
         state.sudoku.toggleCenterInSelectedCells(number);
+        this.pushToUndoList(state.sudoku);
       } else if (state.mode === "corner") {
         state.sudoku.toggleCornerInSelectedCells(number);
+        this.pushToUndoList(state.sudoku);
       }
     } else if (event.key === "Delete") {
       if (state.mode === "color") {
         state.sudoku.setColorInSelectedCells(null);
+        this.pushToUndoList(state.sudoku);
       } else {
         state.sudoku.clearValueInSelectedCells();
+        this.pushToUndoList(state.sudoku);
       }
     } else if (event.key === "Enter") {
       if (state.mode === "color") {
         state.sudoku.setColorInSelectedCells(state.selectedColor);
+        this.pushToUndoList(state.sudoku);
       }
     } else if (event.key === "ArrowLeft") {
       state.sudoku.moveSelection(0, -1);
@@ -187,6 +203,7 @@ class Game extends React.Component {
     console.log(`handleLoad(state='${savedPuzzle}')`);
     let state = this.cloneState();
     state.sudoku.loadPuzzle(savedPuzzle);
+    this.pushToUndoList(state.sudoku);
     this.setState(state);
   }
 
@@ -196,6 +213,22 @@ class Game extends React.Component {
     this.saveTextArea.current.select();
     document.execCommand("copy");
     this.saveTextArea.current.style.display = "none";
+  }
+
+  handleUndo = () => {
+    if (this.historyPosition > 0) {
+      let state = this.cloneState();
+      state.sudoku = this.history[--this.historyPosition];
+      this.setState(state);
+    }
+  }
+
+  handleRedo = () => {
+    if (this.historyPosition < this.history.length - 1) {
+      let state = this.cloneState();
+      state.sudoku = this.history[++this.historyPosition];
+      this.setState(state);
+    }
   }
 
   // ReactJS stuff
@@ -256,6 +289,8 @@ class Game extends React.Component {
             {renderColorButton(7)}
             {renderColorButton(8)}
             <button onClick={this.handleSave}>Copy to clipboard</button>
+            <button onClick={this.handleUndo}>Undo</button>
+            <button onClick={this.handleRedo}>Redo</button>
           </div>
           <textarea className="save" ref={this.saveTextArea}></textarea>
         </div>
