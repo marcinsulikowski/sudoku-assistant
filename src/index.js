@@ -256,6 +256,20 @@ class Game extends React.Component {
     }
   }
 
+  handleClear = () => {
+    let emptySudoku = new SudokuModel();
+    this.pushToUndoList(emptySudoku);
+    this.setState({sudoku: emptySudoku});
+  }
+
+  handleRestart = () => {
+    let sudoku = this.state.sudoku.clone();
+    sudoku.restart();
+    sudoku.runHelpers(this.state.helpers);
+    this.pushToUndoList(sudoku);
+    this.setState({sudoku: sudoku});
+  }
+
   handleHelperFlagChange = (name) => {
     this.setState((state) => {
       let helpers = {
@@ -342,9 +356,11 @@ class Game extends React.Component {
             {renderColorButton(6)}
             {renderColorButton(7)}
             {renderColorButton(8)}
-            <button onClick={this.handleSave}>Copy to clipboard</button>
             <button onClick={this.handleUndo}>Undo</button>
             <button onClick={this.handleRedo}>Redo</button>
+            <button onClick={this.handleSave}>Copy to clipboard</button>
+            <button onClick={this.handleClear}>Clear board</button>
+            <button onClick={this.handleRestart}>Restart</button>
             {renderHelperFlag(
               "removeInvalidMarks",
               "Remove invalid marks"

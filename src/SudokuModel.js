@@ -77,6 +77,17 @@ class SudokuModel {
     }
   }
 
+  restart() {
+    for (const cell of this.getAllCells()) {
+      cell.color = null;
+      if (!cell.fixed) {
+        cell.value = null;
+        cell.cornerMarks.fill(false);
+        cell.centerMarks.fill(false);
+      }
+    }
+  }
+
   getCell(row, column) {
     return this.cells[row][column];
   }
