@@ -150,21 +150,18 @@ class SudokuModel {
   }
 
   deselectAll() {
-    console.log(`deselectAll()`);
     for (const cell of this.getAllCells()) {
       cell.selected = false;
     }
   }
 
   toggleSelection(row, column) {
-    console.log(`toggleSelection(row=${row}, column=${column})`);
     let cell = this.getCell(row, column);
     cell.selected = !cell.selected;
     this.lastSelected = {row: row, column: column};
   }
 
   moveSelection(rowDiff, columnDiff) {
-    console.log(`moveSelection(row=${rowDiff}, column=${columnDiff})`);
     for (const cell of this.getAllCells()) {
       cell.selected = false;
     }

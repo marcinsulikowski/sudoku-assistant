@@ -142,7 +142,6 @@ class Game extends React.Component {
   // Event handlers
 
   handleClick = (event, row, column) => {
-    console.log(`handleClick(row=${row}, column=${column})`);
     // Ctrl+click adds a new field to the selection. Without Ctrl,
     // we deselect all the fields and select only the clicked one.
     let sudoku = this.state.sudoku.clone();
@@ -155,7 +154,6 @@ class Game extends React.Component {
 
   handleKey = (event) => {
     let keyWithModifiers = getKeyWithModifiers(event);
-    console.log(`handleKey(${keyWithModifiers})`);
 
     // Shortcuts handled by delegating to other event handlers.
     if (keyWithModifiers === "Control-z") {
@@ -226,7 +224,6 @@ class Game extends React.Component {
   }
 
   handleSetMode = (mode, color) => {
-    console.log(`handleSetMode(mode=${mode}, color=${color})`);
     this.setState({mode: mode});
     if (color !== null) {
       this.setState({selectedColor: color});
@@ -235,7 +232,6 @@ class Game extends React.Component {
 
   handleLoad = (event) => {
     let savedPuzzle = event.clipboardData.getData("Text");
-    console.log(`handleLoad(state='${savedPuzzle}')`);
     let sudoku = this.state.sudoku.clone();
     sudoku.loadPuzzle(savedPuzzle);
     sudoku.runHelpers(this.state.helpers);
