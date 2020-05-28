@@ -25,7 +25,7 @@ function bitmaskOrInPlace(valueBitmask1, valueBitmask2) {
 
 class SudokuModel {
   constructor() {
-    this.selected = null;
+    this.lastSelected = {row: 0, column: 0};
     this.cells = Array(9);
 
     for (let row = 0; row < 9; row++) {
@@ -53,7 +53,7 @@ class SudokuModel {
       Object.create(Object.getPrototypeOf(this)),
       this
     );
-    cloned.selected = JSON.parse(JSON.stringify(this.selected));
+    cloned.lastSelected = JSON.parse(JSON.stringify(this.lastSelected));
     cloned.cells = JSON.parse(JSON.stringify(this.cells));
     return cloned;
   }
@@ -93,11 +93,7 @@ class SudokuModel {
   }
 
   getSelectedCells() {
-    if (this.selected) {
-      return [this.cells[this.selected.row][this.selected.column]];
-    } else {
-      return [];
-    }
+    return this.getAllCells().filter((cell) => cell.selected);
   }
 
   getAllCells() {
@@ -153,41 +149,37 @@ class SudokuModel {
     return regions;
   }
 
-  deselect() {
-    console.log(`deselect()`);
-    for (const cell of this.getSelectedCells()) {
+  deselectAll() {
+    console.log(`deselectAll()`);
+    for (const cell of this.getAllCells()) {
       cell.selected = false;
     }
-    this.selected = null;
   }
 
-  select(row, column) {
-    console.log(`select(row=${row}, column=${column})`);
-    this.deselect();
-    this.selected = { row: row, column: column };
-    for (const cell of this.getSelectedCells()) {
-      cell.selected = true;
-    }
+  toggleSelection(row, column) {
+    console.log(`toggleSelection(row=${row}, column=${column})`);
+    let cell = this.getCell(row, column);
+    cell.selected = !cell.selected;
+    this.lastSelected = {row: row, column: column};
   }
 
   moveSelection(rowDiff, columnDiff) {
     console.log(`moveSelection(row=${rowDiff}, column=${columnDiff})`);
-    if (this.selected) {
-      for (const cell of this.getSelectedCells()) {
-        cell.selected = false;
-      }
-      this.selected.row = Math.max(
-        0,
-        Math.min(8, this.selected.row + rowDiff)
-      );
-      this.selected.column = Math.max(
-        0,
-        Math.min(8, this.selected.column + columnDiff)
-      );
-      for (const cell of this.getSelectedCells()) {
-        cell.selected = true;
-      }
+    for (const cell of this.getAllCells()) {
+      cell.selected = false;
     }
+    this.lastSelected.row = Math.max(
+      0,
+      Math.min(8, this.lastSelected.row + rowDiff)
+    );
+    this.lastSelected.column = Math.max(
+      0,
+      Math.min(8, this.lastSelected.column + columnDiff)
+    );
+    this.getCell(
+      this.lastSelected.row,
+      this.lastSelected.column
+    ).selected = true;
   }
 
   setValueInSelectedCells(value) {

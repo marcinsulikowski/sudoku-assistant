@@ -97,7 +97,9 @@ class Board extends React.Component {
               <Cell
                 key={++key}
                 cell={this.props.sudoku.getCell(row, column)}
-                onClick={() => this.props.handleClick(row, column)}
+                onClick={
+                  (event) => this.props.handleClick(event, row, column)
+                }
               />
             );
           }
@@ -139,10 +141,15 @@ class Game extends React.Component {
 
   // Event handlers
 
-  handleClick = (row, column) => {
+  handleClick = (event, row, column) => {
     console.log(`handleClick(row=${row}, column=${column})`);
+    // Ctrl+click adds a new field to the selection. Without Ctrl,
+    // we deselect all the fields and select only the clicked one.
     let sudoku = this.state.sudoku.clone();
-    sudoku.select(row, column);
+    if (!event.ctrlKey) {
+      sudoku.deselectAll();
+    }
+    sudoku.toggleSelection(row, column);
     this.setState({sudoku: sudoku});
   }
 
