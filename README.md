@@ -23,9 +23,10 @@ more out-of-line thinking. How cool is that? :)
 
 ## Controls
 
-* Arrow keys or mouse clicks – select a cell.
-* Space – Choose between putting big values, pencil-marking the center,
-  pencil-marking the corners, or coloring cells.
+* Arrow keys or mouse clicks – Select a cell; multiple cells can be selected
+  by clicking with the Control key pressed.
+* Space, a, z, x, c – Choose between putting big values, pencil-marking the
+  center, pencil-marking the corners, or coloring cells.
 * 1–9 – Put the given number as a pencil mark or a value.
 * Enter – Color the selected cell (if a color is selected on the right).
 * Delete – Delete the value from the cell (if any), pencil marks, or its color.
